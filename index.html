@@ -301,6 +301,12 @@
           padding: 0.75rem 1rem;
         }
       }
+      #embedded-site {
+        margin-left: 10rem;
+        margin-right: 10rem;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.7);
+        border-radius: 10px;
+      }
     </style>
   </head>
   <body>
@@ -324,6 +330,11 @@
         </ul>
       </nav>
     </header>
+
+    <!-- Embedded website iframe -->
+    <section id="embedded-site" style="margin-top: 2rem;">
+      <iframe src="https://html-online.com/" width="100%" height="400" style="border:none; border-radius: var(--border-radius);"></iframe>
+    </section>
     <main>
 
       <!-- Page Title -->
@@ -444,11 +455,27 @@
         // Convert content to different formats
         function convertContent() {
           let content = editor.innerHTML;
-          // Replace <p> with newlines
+          // Remove all <div> tags and their content
+          content = content.replace(/<div[^>]*>.*?<\/div>/gi, '');
+          // Remove target="_blank" attributes from all tags
+          content = content.replace(/\s*target=["']?_blank["']?/gi, '');
+          // Remove style attributes
+          content = content.replace(/\s*style=["'][^"']*["']/gi, '');
+          // Remove all <br> tags
+          content = content.replace(/<br\s*\/?>/gi, '');
+          // Remove all tags except <a> and </a>
+          content = content.replace(/<(?!a\s|\/a)[^>]+>/gi, '');
+          // Replace <p> tags with newlines
           content = content.replace(/<p>/gi, '').replace(/<\/p>/gi, '\n');
           const anchorRegex = /<a\s+href=["']([^"']+)["'][^>]*>(.*?)<\/a>/gi;
           let refCounter = 1;
           let refList = '';
+          // Decode HTML entities
+          const decodeHTML = (html) => {
+            const txt = document.createElement('textarea');
+            txt.innerHTML = html;
+            return txt.value;
+          };
           // HTML output (decoded)
           const htmlVersion = decodeHTML(content);
           // Markdown
@@ -463,13 +490,13 @@
           const rawVersion = content.replace(anchorRegex, (_, href, text) =>
             `[${decodeHTML(href)} ${decodeHTML(text)}]`
           );
-          // Reference Markdown
+          // Reference Markdown with reference list
           const refMarkdownVersion = content.replace(anchorRegex, (_, href, text) => {
             const label = refCounter++;
             refList += `[${label}]: ${decodeHTML(href)}\n`;
             return `[${decodeHTML(text)}][${label}]`;
           });
-          // Inject results
+          // Output the results
           htmlOutput.textContent = htmlVersion;
           markdownOutput.textContent = decodeHTML(markdownVersion);
           bbcodeOutput.textContent = decodeHTML(bbcodeVersion);
