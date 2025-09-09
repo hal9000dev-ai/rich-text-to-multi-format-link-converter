@@ -4,9 +4,10 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Multi-Format Link Converter</title>
-
     <!-- Google Fonts for better typography -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet" />
+    <!-- Font Awesome for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
     <style>
       /* CSS Variables for easy theme management */
       :root {
@@ -18,7 +19,26 @@
         --footer-text: #F0EDCC;
         --font-family: 'Inter', Helvetica, Arial, sans-serif;
         --border-radius: 8px;
+        --success-color: #28a745;
+        --error-color: #dc3545;
+        --warning-color: #ffc107;
+        --info-color: #17a2b8;
+        --dark-mode-bg: #1a1a1a;
+        --dark-mode-text: #f0f0f0;
+        --dark-mode-card: #2d2d2d;
+        --dark-mode-border: #444;
       }
+
+      /* Dark mode styles */
+      body.dark-mode {
+        --primary-color: #037C8E;
+        --accent-color: #014D59;
+        --background-gradient-start: #1a1a1a;
+        --background-gradient-end: #2d2d2d;
+        --footer-bg: #0d1117;
+        --footer-text: #f0f0f0;
+      }
+
       body {
         margin: 0;
         padding: 0;
@@ -28,7 +48,13 @@
         display: flex;
         flex-direction: column;
         min-height: 100vh;
+        color: #333;
       }
+
+      body.dark-mode {
+        color: var(--dark-mode-text);
+      }
+
       /* Header & Navigation */
       header {
         position: sticky;
@@ -38,13 +64,15 @@
         box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
         backdrop-filter: blur(8px);
       }
+
       nav {
         display: flex;
         flex-wrap: wrap;
-        justify-content: center;
+        justify-content: space-between;
         align-items: center;
         padding: 1rem 2rem;
       }
+
       nav ul {
         list-style: none;
         display: flex;
@@ -52,6 +80,7 @@
         margin: 0;
         padding: 0;
       }
+
       nav a {
         color: #fff;
         text-decoration: none;
@@ -60,6 +89,7 @@
         border-radius: var(--border-radius);
         transition: background-color 0.3s, transform 0.2s, box-shadow 0.3s;
       }
+
       nav a:focus,
       nav a:hover {
         background-color: var(--background-gradient-start);
@@ -68,6 +98,23 @@
         outline: none;
         transform: translateY(-2px);
       }
+
+      /* Theme toggle button */
+      .theme-toggle {
+        background: none;
+        border: none;
+        color: white;
+        font-size: 1.2rem;
+        cursor: pointer;
+        padding: 0.5rem;
+        border-radius: 50%;
+        transition: background-color 0.3s;
+      }
+
+      .theme-toggle:hover {
+        background-color: rgba(255, 255, 255, 0.1);
+      }
+
       /* Main content */
       main {
         flex: 1;
@@ -77,7 +124,9 @@
         display: flex;
         flex-direction: column;
         gap: 2rem;
+        width: 100%;
       }
+
       /* Header Title */
       h1 {
         text-align: center;
@@ -88,6 +137,11 @@
         margin-bottom: 1rem;
         text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.1);
       }
+
+      body.dark-mode h1 {
+        color: var(--accent-color);
+      }
+
       /* Buttons with styles */
       .button-group {
         display: flex;
@@ -96,6 +150,7 @@
         justify-content: center;
         margin-bottom: 1rem;
       }
+
       button {
         padding: 12px 24px;
         font-size: 1rem;
@@ -106,7 +161,11 @@
         cursor: pointer;
         box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
         transition: background-color 0.3s, transform 0.2s, box-shadow 0.2s;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
       }
+
       button:focus,
       button:hover {
         background-color: var(--accent-color);
@@ -114,6 +173,7 @@
         box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2);
         outline: none;
       }
+
       /* Editable editor area */
       #editor {
         border: 2px solid #bbb;
@@ -129,11 +189,19 @@
         outline: none;
         transition: border-color 0.3s, box-shadow 0.3s;
       }
+
+      body.dark-mode #editor {
+        background-color: var(--dark-mode-card);
+        border-color: var(--dark-mode-border);
+        color: var(--dark-mode-text);
+      }
+
       /* Focus style for editor */
       #editor:focus {
         border-color: var(--primary-color);
         box-shadow: 0 0 12px rgba(1, 77, 89, 0.3);
       }
+
       /* Placeholder mimic for contenteditable */
       #editor.placeholder::before {
         content: attr(data-placeholder);
@@ -145,6 +213,7 @@
         font-style: italic;
         user-select: none;
       }
+
       /* Output section styles */
       #output {
         display: none;
@@ -152,6 +221,7 @@
         gap: 1.5rem;
         margin-top: 2rem;
       }
+
       h2 {
         font-size: 1.5rem;
         color: var(--primary-color);
@@ -159,6 +229,58 @@
         padding-bottom: 0.5rem;
         margin-top: 2rem;
       }
+
+      body.dark-mode h2 {
+        color: var(--accent-color);
+        border-bottom-color: var(--dark-mode-border);
+      }
+
+      .output-tabs {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.5rem;
+        margin-bottom: 1rem;
+        border-bottom: 1px solid #ccc;
+        padding-bottom: 0.5rem;
+      }
+
+      body.dark-mode .output-tabs {
+        border-bottom-color: var(--dark-mode-border);
+      }
+
+      .tab-button {
+        padding: 0.5rem 1rem;
+        background: none;
+        border: none;
+        border-bottom: 2px solid transparent;
+        color: var(--primary-color);
+        cursor: pointer;
+        font-weight: 600;
+        transition: all 0.3s;
+      }
+
+      body.dark-mode .tab-button {
+        color: var(--accent-color);
+      }
+
+      .tab-button.active {
+        border-bottom-color: var(--primary-color);
+        color: var(--primary-color);
+      }
+
+      body.dark-mode .tab-button.active {
+        border-bottom-color: var(--accent-color);
+        color: var(--accent-color);
+      }
+
+      .tab-content {
+        display: none;
+      }
+
+      .tab-content.active {
+        display: block;
+      }
+
       pre {
         background: linear-gradient(135deg, var(--primary-color), var(--accent-color));
         border-left: 4px solid var(--primary-color);
@@ -171,12 +293,28 @@
         font-size: 1rem;
         box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
         transition: background 0.3s, box-shadow 0.3s, transform 0.2s;
+        position: relative;
+        max-height: 300px;
+        overflow-y: auto;
       }
+
       pre:hover {
         background: linear-gradient(135deg, var(--accent-color), var(--primary-color));
         box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
         transform: translateY(-1px);
       }
+
+      .copy-hint {
+        position: absolute;
+        top: 0.5rem;
+        right: 0.5rem;
+        background-color: rgba(255, 255, 255, 0.2);
+        padding: 0.25rem 0.5rem;
+        border-radius: 4px;
+        font-size: 0.8rem;
+        opacity: 0.7;
+      }
+
       /* Footer styles */
       footer {
         background-color: var(--footer-bg);
@@ -188,6 +326,7 @@
         box-shadow: 0 -4px 8px rgba(0, 0, 0, 0.2);
         margin-top: auto;
       }
+
       /* Footer container for sections */
       .footer-container {
         display: flex;
@@ -197,6 +336,7 @@
         max-width: 1200px;
         margin-bottom: 1rem;
       }
+
       .footer-section {
         min-width: 200px;
         margin: 1rem;
@@ -204,10 +344,12 @@
         text-align: center;
         transition: transform 0.3s, box-shadow 0.3s;
       }
+
       .footer-section:hover {
         transform: translateY(-3px);
         box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
       }
+
       .footer-section h3 {
         margin-bottom: 0.75rem;
         font-size: 1.2rem;
@@ -216,172 +358,320 @@
         padding-bottom: 0.5rem;
         letter-spacing: 1px;
       }
+
       a {
         color: var(--footer-text);
         text-decoration: underline;
       }
-      @media(max-width: 768px) {
-        nav {
-          flex-direction: column;
-        }
-        .footer-container {
-          flex-direction: column;
-          align-items: center;
-        }
-      }
+
       /* Status message area */
       #statusMessage {
         text-align: center;
         margin-top: 1rem;
         font-weight: 600;
-        color: green;
         min-height: 1.5rem;
+        padding: 0.5rem;
+        border-radius: var(--border-radius);
       }
-      /* Customize primary color as needed */
-      :root {
-        --primary-color: #02343F;
-        --hover-shadow: rgba(0, 0, 0, 0.12);
+
+      .status-success {
+        color: var(--success-color);
       }
-      /* Navbar styles */
-      .custom-navbar {
-        position: relative;
+
+      .status-error {
+        color: var(--error-color);
+      }
+
+      .status-info {
+        color: var(--info-color);
+      }
+
+      /* Character counter */
+      .char-counter {
+        text-align: right;
+        font-size: 0.9rem;
+        color: #666;
+        margin-top: 0.5rem;
+      }
+
+      body.dark-mode .char-counter {
+        color: #aaa;
+      }
+
+      /* History panel */
+      #history-panel {
+        position: fixed;
         top: 0;
-        width: 100%;
-        background-color: var(--primary-color);
-        padding: 1rem 2rem;
-        z-index: 999;
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-        backdrop-filter: blur(8px);
-        transition: all 0.3s ease;
+        right: -350px;
+        width: 350px;
+        height: 100%;
+        background-color: var(--footer-bg);
+        color: var(--footer-text);
+        box-shadow: -4px 0 12px rgba(0, 0, 0, 0.2);
+        transition: right 0.3s ease;
+        z-index: 1000;
+        padding: 2rem 1.5rem;
+        overflow-y: auto;
       }
-      .custom-navbar ul {
+
+      #history-panel.open {
+        right: 0;
+      }
+
+      .history-header {
         display: flex;
-        flex-wrap: wrap;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 1.5rem;
+      }
+
+      .history-item {
+        background-color: rgba(255, 255, 255, 0.1);
+        border-radius: var(--border-radius);
+        padding: 1rem;
+        margin-bottom: 1rem;
+        cursor: pointer;
+        transition: background-color 0.3s;
+      }
+
+      .history-item:hover {
+        background-color: rgba(255, 255, 255, 0.2);
+      }
+
+      .history-item-title {
+        font-weight: 600;
+        margin-bottom: 0.5rem;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+
+      .history-item-date {
+        font-size: 0.8rem;
+        opacity: 0.7;
+      }
+
+      .close-history {
+        background: none;
+        border: none;
+        color: white;
+        font-size: 1.5rem;
+        cursor: pointer;
+      }
+
+      /* Preview modal */
+      .preview-modal {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.7);
+        z-index: 2000;
         justify-content: center;
         align-items: center;
-        list-style: none;
+        padding: 2rem;
       }
-      .custom-navbar li {
-        margin: 0 1.5rem;
-        transition: transform 0.2s, box-shadow 0.2s;
+
+      .preview-content {
+        background-color: white;
+        border-radius: var(--border-radius);
+        padding: 2rem;
+        max-width: 800px;
+        width: 100%;
+        max-height: 80vh;
+        overflow-y: auto;
+        position: relative;
       }
-      .custom-navbar li:hover {
-        transform: translateY(-3px);
-        box-shadow: 0 4px 8px var(--hover-shadow);
+
+      body.dark-mode .preview-content {
+        background-color: var(--dark-mode-card);
+        color: var(--dark-mode-text);
       }
-      .custom-navbar a {
-        color: #fff;
-        text-decoration: none;
-        font-weight: 600;
-        padding: 0.75rem 1.2rem;
-        border-radius: 8px;
-        transition: background-color 0.3s, color 0.3s, box-shadow 0.3s, transform 0.2s;
+
+      .close-preview {
+        position: absolute;
+        top: 1rem;
+        right: 1rem;
+        background: none;
+        border: none;
+        font-size: 1.5rem;
+        cursor: pointer;
+        color: #333;
+      }
+
+      body.dark-mode .close-preview {
+        color: var(--dark-mode-text);
+      }
+
+      /* Responsive styles */
+      @media(max-width: 768px) {
+        nav {
+          flex-direction: column;
+          gap: 1rem;
+        }
+        
+        nav ul {
+          flex-wrap: wrap;
+          justify-content: center;
+        }
+        
+        .footer-container {
+          flex-direction: column;
+          align-items: center;
+        }
+        
+        #history-panel {
+          width: 100%;
+          right: -100%;
+        }
+      }
+
+      /* Tooltips */
+      .tooltip {
+        position: relative;
         display: inline-block;
       }
-      .custom-navbar a:hover,
-      .custom-navbar a:focus {
-        background-color: var(--background-color, #F0EDCC);
-        color: var(--primary-color);
-        box-shadow: 0 4px 8px var(--hover-shadow);
-        transform: translateY(-2px);
-        outline: none;
+
+      .tooltip .tooltiptext {
+        visibility: hidden;
+        width: 120px;
+        background-color: var(--footer-bg);
+        color: var(--footer-text);
+        text-align: center;
+        border-radius: var(--border-radius);
+        padding: 0.5rem;
+        position: absolute;
+        z-index: 1;
+        bottom: 125%;
+        left: 50%;
+        margin-left: -60px;
+        opacity: 0;
+        transition: opacity 0.3s;
+        font-size: 0.8rem;
       }
-      /* Responsive styles for small screens */
-      @media (max-width: 600px) {
-        .custom-navbar {
-          padding: 0.75rem 1rem;
-        }
-        .custom-navbar ul {
-          flex-direction: column;
-        }
-        .custom-navbar li {
-          margin: 0.5rem 0;
-        }
-        .custom-navbar a {
-          padding: 0.75rem 1rem;
-        }
-      }
-      #embedded-site {
-        margin-left: 10rem;
-        margin-right: 10rem;
-        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.7);
-        border-radius: 10px;
+
+      .tooltip:hover .tooltiptext {
+        visibility: visible;
+        opacity: 1;
       }
     </style>
   </head>
   <body>
-
-    <!-- Navigation Bar Component -->
-    <nav role="navigation" aria-label="Main Navigation" class="custom-navbar">
-      <ul>
-        <li><a href="#hero" aria-label="Home section">Home</a></li>
-        <li><a href="#seo-tools" aria-label="SEO Tools section">SEO Tools</a></li>
-        <li><a href="#resource-tools" aria-label="Coding Resources section">Resource</a></li>
-        <li><a href="#contact" aria-label="Contact section">Contact</a></li>
-      </ul>
-    </nav>
-
     <!-- Semantic header with navigation -->
     <header>
       <nav aria-label="Main Navigation">
         <ul>
-          <li><a href="#editor-section">Editor</a></li>
-          <li><a href="#output-section">Output</a></li>
+          <li><a href="#editor-section" aria-label="Editor section">Editor</a></li>
+          <li><a href="#output-section" aria-label="Output section">Output</a></li>
+          <li><a href="#" id="history-toggle" aria-label="History panel">History</a></li>
         </ul>
+        <button class="theme-toggle" id="theme-toggle" aria-label="Toggle dark mode">
+          <i class="fas fa-moon"></i>
+        </button>
       </nav>
     </header>
 
-    <!-- Embedded website iframe -->
-    <section id="embedded-site" style="margin-top: 2rem;">
-      <iframe src="https://html-online.com/" width="100%" height="400" style="border:none; border-radius: var(--border-radius);"></iframe>
-    </section>
     <main>
-
       <!-- Page Title -->
       <h1 id="editor-section">Multi-Format Link Converter</h1>
-
+      
       <!-- Button group for actions -->
       <div class="button-group" role="toolbar" aria-label="Actions">
-        <button id="makeLinkBtn" aria-label="Make Hyperlink">🔗 Make Hyperlink</button>
-        <button id="clearBtn" aria-label="Clear Editor">Clear</button>
+        <button id="makeLinkBtn" aria-label="Make Hyperlink">
+          <i class="fas fa-link"></i> Make Hyperlink
+        </button>
+        <button id="clearBtn" aria-label="Clear Editor">
+          <i class="fas fa-eraser"></i> Clear
+        </button>
+        <button id="previewBtn" aria-label="Preview Links">
+          <i class="fas fa-eye"></i> Preview
+        </button>
+        <button id="downloadBtn" aria-label="Download Output">
+          <i class="fas fa-download"></i> Download
+        </button>
+        <div class="tooltip">
+          <button id="settingsBtn" aria-label="Settings">
+            <i class="fas fa-cog"></i> Settings
+          </button>
+          <span class="tooltiptext">Coming Soon</span>
+        </div>
       </div>
-
+      
       <!-- Editable area with custom placeholder -->
       <section id="editor-section">
-        <div id="editor" contenteditable="true" aria-label="Rich Text Editor" data-placeholder="Paste here..."></div>
+        <div id="editor" contenteditable="true" aria-label="Rich Text Editor" data-placeholder="Paste your content with links here..."></div>
+        <div class="char-counter" id="char-counter">0 characters</div>
       </section>
-
+      
       <!-- Status message -->
       <div id="statusMessage"></div>
-
+      
       <!-- Output area -->
       <section id="output-section" aria-labelledby="output-label">
         <h2 id="output-label">Converted Formats</h2>
+        
+        <div class="output-tabs" role="tablist">
+          <button class="tab-button active" data-tab="html" role="tab" aria-selected="true" aria-controls="html-panel">HTML</button>
+          <button class="tab-button" data-tab="markdown" role="tab" aria-selected="false" aria-controls="markdown-panel">Markdown</button>
+          <button class="tab-button" data-tab="bbcode" role="tab" aria-selected="false" aria-controls="bbcode-panel">BBCode</button>
+          <button class="tab-button" data-tab="raw" role="tab" aria-selected="false" aria-controls="raw-panel">Raw Text</button>
+          <button class="tab-button" data-tab="refmd" role="tab" aria-selected="false" aria-controls="refmd-panel">Reference Markdown</button>
+          <button class="tab-button" data-tab="json" role="tab" aria-selected="false" aria-controls="json-panel">JSON</button>
+          <button class="tab-button" data-tab="slack" role="tab" aria-selected="false" aria-controls="slack-panel">Slack</button>
+        </div>
+        
         <div id="output">
-          <div>
-            <h3>HTML</h3>
-            <pre id="html" role="textbox" aria-label="HTML Output" tabindex="0">Click to copy</pre>
+          <div id="html-panel" class="tab-content active" role="tabpanel" aria-labelledby="html-tab">
+            <pre id="html" role="textbox" aria-label="HTML Output" tabindex="0">Click to copy<span class="copy-hint">Click to copy</span></pre>
           </div>
-          <div>
-            <h3>Markdown</h3>
-            <pre id="markdown" role="textbox" aria-label="Markdown Output" tabindex="0">Click to copy</pre>
+          <div id="markdown-panel" class="tab-content" role="tabpanel" aria-labelledby="markdown-tab">
+            <pre id="markdown" role="textbox" aria-label="Markdown Output" tabindex="0">Click to copy<span class="copy-hint">Click to copy</span></pre>
           </div>
-          <div>
-            <h3>BBCode</h3>
-            <pre id="bbcode" role="textbox" aria-label="BBCode Output" tabindex="0">Click to copy</pre>
+          <div id="bbcode-panel" class="tab-content" role="tabpanel" aria-labelledby="bbcode-tab">
+            <pre id="bbcode" role="textbox" aria-label="BBCode Output" tabindex="0">Click to copy<span class="copy-hint">Click to copy</span></pre>
           </div>
-          <div>
-            <h3>Raw Text</h3>
-            <pre id="raw" role="textbox" aria-label="Raw Text Output" tabindex="0">Click to copy</pre>
+          <div id="raw-panel" class="tab-content" role="tabpanel" aria-labelledby="raw-tab">
+            <pre id="raw" role="textbox" aria-label="Raw Text Output" tabindex="0">Click to copy<span class="copy-hint">Click to copy</span></pre>
           </div>
-          <div>
-            <h3>Reference Markdown</h3>
-            <pre id="refmd" role="textbox" aria-label="Reference Markdown Output" tabindex="0">Click to copy</pre>
+          <div id="refmd-panel" class="tab-content" role="tabpanel" aria-labelledby="refmd-tab">
+            <pre id="refmd" role="textbox" aria-label="Reference Markdown Output" tabindex="0">Click to copy<span class="copy-hint">Click to copy</span></pre>
+          </div>
+          <div id="json-panel" class="tab-content" role="tabpanel" aria-labelledby="json-tab">
+            <pre id="json" role="textbox" aria-label="JSON Output" tabindex="0">Click to copy<span class="copy-hint">Click to copy</span></pre>
+          </div>
+          <div id="slack-panel" class="tab-content" role="tabpanel" aria-labelledby="slack-tab">
+            <pre id="slack" role="textbox" aria-label="Slack Output" tabindex="0">Click to copy<span class="copy-hint">Click to copy</span></pre>
           </div>
         </div>
       </section>
     </main>
-
+    
+    <!-- History Panel -->
+    <div id="history-panel">
+      <div class="history-header">
+        <h3>Conversion History</h3>
+        <button class="close-history" id="close-history" aria-label="Close history panel">
+          <i class="fas fa-times"></i>
+        </button>
+      </div>
+      <div id="history-list">
+        <p>No history yet. Convert some links to see them here.</p>
+      </div>
+    </div>
+    
+    <!-- Preview Modal -->
+    <div class="preview-modal" id="preview-modal">
+      <div class="preview-content">
+        <button class="close-preview" id="close-preview" aria-label="Close preview">
+          <i class="fas fa-times"></i>
+        </button>
+        <h3>Link Preview</h3>
+        <div id="preview-content"></div>
+      </div>
+    </div>
+    
     <!-- Footer with contact info -->
     <footer>
       <div class="footer-container" role="contentinfo">
@@ -394,6 +684,7 @@
       </div>
       <p style="margin-top:1rem;">Created by Shakeeb Ahmed</p>
     </footer>
+    
     <script>
       (function() {
         // Cache DOM elements
@@ -403,132 +694,280 @@
         const bbcodeOutput = document.getElementById('bbcode');
         const rawOutput = document.getElementById('raw');
         const refmdOutput = document.getElementById('refmd');
+        const jsonOutput = document.getElementById('json');
+        const slackOutput = document.getElementById('slack');
         const outputSection = document.getElementById('output');
         const statusMessage = document.getElementById('statusMessage');
         const btnMakeLink = document.getElementById('makeLinkBtn');
         const btnClear = document.getElementById('clearBtn');
+        const btnPreview = document.getElementById('previewBtn');
+        const btnDownload = document.getElementById('downloadBtn');
+        const charCounter = document.getElementById('char-counter');
+        const themeToggle = document.getElementById('theme-toggle');
+        const historyToggle = document.getElementById('history-toggle');
+        const historyPanel = document.getElementById('history-panel');
+        const closeHistory = document.getElementById('close-history');
+        const historyList = document.getElementById('history-list');
+        const previewModal = document.getElementById('preview-modal');
+        const closePreview = document.getElementById('close-preview');
+        const previewContent = document.getElementById('preview-content');
+        const tabButtons = document.querySelectorAll('.tab-button');
+        const tabContents = document.querySelectorAll('.tab-content');
+        
+        // Initialize variables
+        let conversionHistory = JSON.parse(localStorage.getItem('linkConversionHistory')) || [];
+        let currentFormat = 'html';
+        let debounceTimer;
+        
+        // Initialize dark mode
+        const isDarkMode = localStorage.getItem('darkMode') === 'true';
+        if (isDarkMode) {
+          document.body.classList.add('dark-mode');
+          themeToggle.innerHTML = '<i class="fas fa-sun"></i>';
+        }
+        
         // Utility: decode HTML entities
         function decodeHTML(str) {
           const txt = document.createElement('textarea');
           txt.innerHTML = str;
           return txt.value;
         }
+        
         // Show temporary status message
-        function showStatus(msg, isError = false) {
+        function showStatus(msg, type = 'success') {
           statusMessage.textContent = msg;
-          statusMessage.style.color = isError ? 'red' : 'green';
+          statusMessage.className = `status-${type}`;
           setTimeout(() => {
             statusMessage.textContent = '';
+            statusMessage.className = '';
           }, 3000);
         }
+        
         // Handle placeholder in contenteditable
         function setPlaceholder() {
           if (editor.innerText.trim() === '') {
             editor.classList.add('placeholder');
-            editor.setAttribute('data-placeholder', 'Paste here...');
+            editor.setAttribute('data-placeholder', 'Paste your content with links here...');
           } else {
             editor.classList.remove('placeholder');
           }
         }
+        
         // Initialize placeholder
         function initPlaceholder() {
           setPlaceholder();
-          // Add CSS for placeholder
-          const style = document.createElement('style');
-          style.innerHTML = `
-      #editor.placeholder::before {
-        content: attr(data-placeholder);
-        position: absolute;
-        top: 1rem;
-        left: 1rem;
-        color: #999;
-        pointer-events: none;
-        font-style: italic;
-        user-select: none;
-      }
-      #editor {
-        position: relative;
-      }
-    `;
-          document.head.appendChild(style);
         }
+        
+        // Update character counter
+        function updateCharCounter() {
+          const count = editor.innerText.length;
+          charCounter.textContent = `${count} characters`;
+        }
+        
+        // Validate URL
+        function isValidURL(string) {
+          try {
+            new URL(string);
+            return true;
+          } catch (_) {
+            return false;
+          }
+        }
+        
         // Convert content to different formats
         function convertContent() {
           let content = editor.innerHTML;
+          
           // Remove all <div> tags and their content
           content = content.replace(/<div[^>]*>.*?<\/div>/gi, '');
+          
           // Remove target="_blank" attributes from all tags
           content = content.replace(/\s*target=["']?_blank["']?/gi, '');
+          
           // Remove style attributes
           content = content.replace(/\s*style=["'][^"']*["']/gi, '');
+          
           // Remove all <br> tags
           content = content.replace(/<br\s*\/?>/gi, '');
+          
           // Remove all tags except <a> and </a>
           content = content.replace(/<(?!a\s|\/a)[^>]+>/gi, '');
+          
           // Replace <p> tags with newlines
           content = content.replace(/<p>/gi, '').replace(/<\/p>/gi, '\n');
+          
           const anchorRegex = /<a\s+href=["']([^"']+)["'][^>]*>(.*?)<\/a>/gi;
           let refCounter = 1;
           let refList = '';
-          // Decode HTML entities
-          const decodeHTML = (html) => {
-            const txt = document.createElement('textarea');
-            txt.innerHTML = html;
-            return txt.value;
-          };
+          let linksArray = [];
+          
+          // Extract links for JSON format
+          let match;
+          while ((match = anchorRegex.exec(content)) !== null) {
+            linksArray.push({
+              url: decodeHTML(match[1]),
+              text: decodeHTML(match[2])
+            });
+          }
+          
+          // Reset regex for other conversions
+          anchorRegex.lastIndex = 0;
+          
           // HTML output (decoded)
           const htmlVersion = decodeHTML(content);
+          
           // Markdown
           const markdownVersion = content.replace(anchorRegex, (_, href, text) =>
             `[${decodeHTML(text)}](${decodeHTML(href)})`
           );
+          
           // BBCode
           const bbcodeVersion = content.replace(anchorRegex, (_, href, text) =>
             `[url=${decodeHTML(href)}]${decodeHTML(text)}[/url]`
           );
+          
           // Raw Text
           const rawVersion = content.replace(anchorRegex, (_, href, text) =>
             `[${decodeHTML(href)} ${decodeHTML(text)}]`
           );
+          
           // Reference Markdown with reference list
           const refMarkdownVersion = content.replace(anchorRegex, (_, href, text) => {
             const label = refCounter++;
             refList += `[${label}]: ${decodeHTML(href)}\n`;
             return `[${decodeHTML(text)}][${label}]`;
           });
+          
+          // JSON format
+          const jsonVersion = JSON.stringify(linksArray, null, 2);
+          
+          // Slack format
+          const slackVersion = content.replace(anchorRegex, (_, href, text) =>
+            `<${decodeHTML(href)}|${decodeHTML(text)}>`
+          );
+          
           // Output the results
           htmlOutput.textContent = htmlVersion;
           markdownOutput.textContent = decodeHTML(markdownVersion);
           bbcodeOutput.textContent = decodeHTML(bbcodeVersion);
           rawOutput.textContent = decodeHTML(rawVersion);
           refmdOutput.textContent = decodeHTML(refMarkdownVersion + "\n\n" + refList.trim());
+          jsonOutput.textContent = jsonVersion;
+          slackOutput.textContent = decodeHTML(slackVersion);
+          
           outputSection.style.display = 'block';
+          
+          // Save to history if there are links
+          if (linksArray.length > 0) {
+            saveToHistory(linksArray);
+          }
         }
+        
+        // Save conversion to history
+        function saveToHistory(links) {
+          const timestamp = new Date().toISOString();
+          const title = links.length === 1 
+            ? links[0].text 
+            : `${links.length} links - ${new Date().toLocaleString()}`;
+          
+          const historyItem = {
+            id: Date.now(),
+            title: title,
+            links: links,
+            timestamp: timestamp
+          };
+          
+          // Add to beginning of array
+          conversionHistory.unshift(historyItem);
+          
+          // Limit history to 20 items
+          if (conversionHistory.length > 20) {
+            conversionHistory = conversionHistory.slice(0, 20);
+          }
+          
+          // Save to localStorage
+          localStorage.setItem('linkConversionHistory', JSON.stringify(conversionHistory));
+          
+          // Update history UI
+          updateHistoryUI();
+        }
+        
+        // Update history UI
+        function updateHistoryUI() {
+          if (conversionHistory.length === 0) {
+            historyList.innerHTML = '<p>No history yet. Convert some links to see them here.</p>';
+            return;
+          }
+          
+          historyList.innerHTML = '';
+          conversionHistory.forEach(item => {
+            const historyItem = document.createElement('div');
+            historyItem.className = 'history-item';
+            historyItem.innerHTML = `
+              <div class="history-item-title">${item.title}</div>
+              <div class="history-item-date">${new Date(item.timestamp).toLocaleString()}</div>
+            `;
+            
+            historyItem.addEventListener('click', () => {
+              loadFromHistory(item);
+              historyPanel.classList.remove('open');
+            });
+            
+            historyList.appendChild(historyItem);
+          });
+        }
+        
+        // Load from history
+        function loadFromHistory(item) {
+          let htmlContent = '';
+          item.links.forEach(link => {
+            htmlContent += `<a href="${link.url}">${link.text}</a> `;
+          });
+          
+          editor.innerHTML = htmlContent;
+          setPlaceholder();
+          convertContent();
+          updateCharCounter();
+          showStatus('Loaded from history', 'info');
+        }
+        
         // Make hyperlink
         function makeLink() {
           const url = prompt("Enter the URL for the hyperlink:");
           if (!url) return;
-          const selection = window.getSelection();
-          if (selection.rangeCount === 0) {
-            showStatus('Please select text to hyperlink.', true);
+          
+          if (!isValidURL(url)) {
+            showStatus('Please enter a valid URL', 'error');
             return;
           }
+          
+          const selection = window.getSelection();
+          if (selection.rangeCount === 0 || selection.toString().trim() === '') {
+            showStatus('Please select text to hyperlink.', 'error');
+            return;
+          }
+          
           const range = selection.getRangeAt(0);
           const selectedText = selection.toString();
+          
           // Create anchor
           const anchor = document.createElement('a');
           anchor.href = url;
           anchor.textContent = selectedText;
+          
           // Replace selection
           range.deleteContents();
           range.insertNode(anchor);
+          
           // Re-render
           convertContent();
           showStatus('Hyperlink added.');
         }
+        
         // Copy code to clipboard with fallback
         function copyCode(element) {
-          const text = element.textContent;
+          const text = element.textContent.replace('Click to copy', '').trim();
+          
           if (navigator.clipboard) {
             navigator.clipboard.writeText(text).then(() => {
               showStatus('Copied to clipboard.');
@@ -538,6 +977,7 @@
           } else {
             fallbackCopy(text);
           }
+          
           function fallbackCopy(text) {
             const textarea = document.createElement('textarea');
             textarea.value = text;
@@ -552,21 +992,130 @@
             document.body.removeChild(textarea);
           }
         }
+        
         // Clear editor
         function clearEditor() {
+          if (editor.innerText.trim() !== '' && 
+              !confirm('Are you sure you want to clear the editor?')) {
+            return;
+          }
+          
           editor.innerHTML = '';
           setPlaceholder();
           outputSection.style.display = 'none';
+          updateCharCounter();
           showStatus('Editor cleared.');
         }
+        
+        // Preview links
+        function previewLinks() {
+          const content = editor.innerHTML;
+          const anchorRegex = /<a\s+href=["']([^"']+)["'][^>]*>(.*?)<\/a>/gi;
+          let previewHTML = '';
+          let hasLinks = false;
+          
+          let match;
+          while ((match = anchorRegex.exec(content)) !== null) {
+            hasLinks = true;
+            const url = decodeHTML(match[1]);
+            const text = decodeHTML(match[2]);
+            previewHTML += `
+              <div style="margin-bottom: 1rem; padding: 1rem; border: 1px solid #ddd; border-radius: 4px;">
+                <h4>${text}</h4>
+                <a href="${url}" target="_blank" rel="noopener noreferrer">${url}</a>
+              </div>
+            `;
+          }
+          
+          if (!hasLinks) {
+            previewHTML = '<p>No links found in the editor.</p>';
+          }
+          
+          previewContent.innerHTML = previewHTML;
+          previewModal.style.display = 'flex';
+        }
+        
+        // Download output
+        function downloadOutput() {
+          const format = currentFormat;
+          let content = '';
+          let filename = '';
+          let mimeType = '';
+          
+          switch(format) {
+            case 'html':
+              content = htmlOutput.textContent;
+              filename = 'links.html';
+              mimeType = 'text/html';
+              break;
+            case 'markdown':
+              content = markdownOutput.textContent;
+              filename = 'links.md';
+              mimeType = 'text/markdown';
+              break;
+            case 'bbcode':
+              content = bbcodeOutput.textContent;
+              filename = 'links.bbcode';
+              mimeType = 'text/plain';
+              break;
+            case 'raw':
+              content = rawOutput.textContent;
+              filename = 'links.txt';
+              mimeType = 'text/plain';
+              break;
+            case 'refmd':
+              content = refmdOutput.textContent;
+              filename = 'links-ref.md';
+              mimeType = 'text/markdown';
+              break;
+            case 'json':
+              content = jsonOutput.textContent;
+              filename = 'links.json';
+              mimeType = 'application/json';
+              break;
+            case 'slack':
+              content = slackOutput.textContent;
+              filename = 'links-slack.txt';
+              mimeType = 'text/plain';
+              break;
+          }
+          
+          const blob = new Blob([content], { type: mimeType });
+          const url = URL.createObjectURL(blob);
+          const a = document.createElement('a');
+          a.href = url;
+          a.download = filename;
+          document.body.appendChild(a);
+          a.click();
+          document.body.removeChild(a);
+          URL.revokeObjectURL(url);
+          
+          showStatus(`Downloaded ${filename}`);
+        }
+        
+        // Toggle dark mode
+        function toggleDarkMode() {
+          document.body.classList.toggle('dark-mode');
+          const isDark = document.body.classList.contains('dark-mode');
+          localStorage.setItem('darkMode', isDark);
+          themeToggle.innerHTML = isDark ? '<i class="fas fa-sun"></i>' : '<i class="fas fa-moon"></i>';
+        }
+        
         // Event handlers
         // Initialize placeholder on load
         initPlaceholder();
-        // Handle input in editor
+        updateHistoryUI();
+        
+        // Handle input in editor with debouncing
         editor.addEventListener('input', () => {
-          setPlaceholder();
-          convertContent();
+          clearTimeout(debounceTimer);
+          debounceTimer = setTimeout(() => {
+            setPlaceholder();
+            convertContent();
+            updateCharCounter();
+          }, 300);
         });
+        
         // Handle paste
         editor.addEventListener('paste', () => {
           setTimeout(() => {
@@ -574,24 +1123,114 @@
             editor.innerHTML = editor.innerHTML.replace(/<p>/gi, '').replace(/<\/p>/gi, '\n');
             setPlaceholder();
             convertContent();
+            updateCharCounter();
           }, 50);
         });
+        
         // Make Hyperlink button
-        document.getElementById('makeLinkBtn').addEventListener('click', () => {
+        btnMakeLink.addEventListener('click', () => {
           makeLink();
         });
+        
         // Clear button
-        document.getElementById('clearBtn').addEventListener('click', () => {
+        btnClear.addEventListener('click', () => {
           clearEditor();
         });
+        
+        // Preview button
+        btnPreview.addEventListener('click', () => {
+          previewLinks();
+        });
+        
+        // Download button
+        btnDownload.addEventListener('click', () => {
+          downloadOutput();
+        });
+        
+        // Theme toggle
+        themeToggle.addEventListener('click', () => {
+          toggleDarkMode();
+        });
+        
+        // History toggle
+        historyToggle.addEventListener('click', (e) => {
+          e.preventDefault();
+          historyPanel.classList.add('open');
+        });
+        
+        // Close history
+        closeHistory.addEventListener('click', () => {
+          historyPanel.classList.remove('open');
+        });
+        
+        // Close preview
+        closePreview.addEventListener('click', () => {
+          previewModal.style.display = 'none';
+        });
+        
+        // Close preview when clicking outside
+        previewModal.addEventListener('click', (e) => {
+          if (e.target === previewModal) {
+            previewModal.style.display = 'none';
+          }
+        });
+        
+        // Tab switching
+        tabButtons.forEach(button => {
+          button.addEventListener('click', () => {
+            const tabId = button.getAttribute('data-tab');
+            
+            // Update active tab button
+            tabButtons.forEach(btn => {
+              btn.classList.remove('active');
+              btn.setAttribute('aria-selected', 'false');
+            });
+            button.classList.add('active');
+            button.setAttribute('aria-selected', 'true');
+            
+            // Update active tab content
+            tabContents.forEach(content => {
+              content.classList.remove('active');
+            });
+            document.getElementById(`${tabId}-panel`).classList.add('active');
+            
+            // Update current format
+            currentFormat = tabId;
+          });
+        });
+        
         // Copy output on click
         document.querySelectorAll('#output pre').forEach(pre => {
-          pre.setAttribute('tabindex', '0');
-          pre.setAttribute('role', 'textbox');
-          pre.setAttribute('aria-label', pre.nextElementSibling.textContent);
           pre.addEventListener('click', () => {
             copyCode(pre);
           });
+        });
+        
+        // Keyboard shortcuts
+        document.addEventListener('keydown', (e) => {
+          // Ctrl/Cmd + K to make link
+          if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
+            e.preventDefault();
+            makeLink();
+          }
+          
+          // Ctrl/Cmd + L to clear editor
+          if ((e.ctrlKey || e.metaKey) && e.key === 'l') {
+            e.preventDefault();
+            clearEditor();
+          }
+          
+          // Ctrl/Cmd + S to download
+          if ((e.ctrlKey || e.metaKey) && e.key === 's') {
+            e.preventDefault();
+            downloadOutput();
+          }
+          
+          // Escape to close modals
+          if (e.key === 'Escape') {
+            historyPanel.classList.remove('open');
+            previewModal.style.display = 'none';
+          }
         });
       })();
     </script>
