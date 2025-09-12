@@ -510,9 +510,9 @@
         transition: background 0.3s;
         z-index: 10;
       }
-
       .history-item .delete-history:hover {
-        background-color: #c82333; /* darker red */
+        background-color: #c82333;
+        /* darker red */
       }
     </style>
   </head>
@@ -725,11 +725,13 @@
         // Convert content to different formats
         function convertContent() {
           let content = editor.innerHTML;
-          // Remove all <div> tags and their content
-          content = content.replace(/<div[^>]*>.*?<\/div>/gi, '');
-          // Remove target="_blank" attributes from all tags
+          // Remove all tags except <a> (if you want to keep only links)
+          // But first, convert block elements to line breaks to preserve paragraph structure
+          content = content.replace(/<(div|p|br)[^>]*>/gi, '\n');
+          content = content.replace(/<\/(div|p)>/gi, '\n\n');
+          // Remove target="_blank" attributes
           content = content.replace(/\s*target=["']?_blank["']?/gi, '');
-          // Remove all tags except <a> and </a>
+          // Remove all other tags except <a>
           content = content.replace(/<(?!a\s|\/a)[^>]+>/gi, '');
           const anchorRegex = /<a\s+href=["']([^"']+)["'][^>]*>(.*?)<\/a>/gi;
           let refCounter = 1;
@@ -743,7 +745,7 @@
               text: decodeHTML(match[2])
             });
           }
-          // Reset regex for other conversions
+          // Reset regex index
           anchorRegex.lastIndex = 0;
           // HTML output (decoded)
           const htmlVersion = decodeHTML(content);
@@ -755,10 +757,8 @@
           const bbcodeVersion = content.replace(anchorRegex, (_, href, text) =>
             `[url=${decodeHTML(href)}]${decodeHTML(text)}[/url]`
           );
-          // Raw Text
-          const rawVersion = content.replace(anchorRegex, (_, href, text) =>
-            `[${decodeHTML(href)} ${decodeHTML(text)}]`
-          );
+          // Raw Text (with preserved paragraph structure)
+          const rawVersion = decodeHTML(content);
           // Reference Markdown with reference list
           const refMarkdownVersion = content.replace(anchorRegex, (_, href, text) => {
             const label = refCounter++;
@@ -771,7 +771,7 @@
           const slackVersion = content.replace(anchorRegex, (_, href, text) =>
             `<${decodeHTML(href)}|${decodeHTML(text)}>`
           );
-          // Output the results
+          // Assign outputs
           htmlOutput.textContent = htmlVersion;
           markdownOutput.textContent = decodeHTML(markdownVersion);
           bbcodeOutput.textContent = decodeHTML(bbcodeVersion);
@@ -780,7 +780,7 @@
           jsonOutput.textContent = jsonVersion;
           slackOutput.textContent = decodeHTML(slackVersion);
           outputSection.style.display = 'block';
-          // Save to history if there are links
+          // Save to history if links exist
           if (linksArray.length > 0) {
             saveToHistory(linksArray);
           }
@@ -808,7 +808,6 @@
           // Update history UI
           updateHistoryUI();
         }
-        
         // Delete a single history item
         function deleteHistoryItem(id) {
           const index = conversionHistory.findIndex(item => item.id === id);
@@ -819,7 +818,6 @@
             showStatus('History item deleted', 'info');
           }
         }
-        
         // Clear all history
         function clearAllHistory() {
           if (confirm('Are you sure you want to delete all conversion history? This cannot be undone.')) {
@@ -829,7 +827,6 @@
             showStatus('All history cleared', 'info');
           }
         }
-        
         // Update history UI
         function updateHistoryUI() {
           if (conversionHistory.length === 0) {
@@ -851,18 +848,15 @@
               loadFromHistory(item);
               historyPanel.classList.remove('open');
             });
-            
             // Add event listener to delete button
             const deleteButton = historyItem.querySelector('.delete-history');
             deleteButton.addEventListener('click', (e) => {
               e.stopPropagation(); // Prevent triggering the parent click
               deleteHistoryItem(item.id);
             });
-            
             historyList.appendChild(historyItem);
           });
         }
-        
         // Load from history
         function loadFromHistory(item) {
           let htmlContent = '';
@@ -875,7 +869,6 @@
           updateCharCounter();
           showStatus('Loaded from history', 'info');
         }
-        
         // Make hyperlink
         function makeLink() {
           const url = prompt("Enter the URL for the hyperlink:");
@@ -902,7 +895,6 @@
           convertContent();
           showStatus('Hyperlink added.');
         }
-        
         // Copy code to clipboard with fallback
         function copyCode(element) {
           const text = element.textContent.replace('Click to copy', '').trim();
@@ -929,7 +921,6 @@
             document.body.removeChild(textarea);
           }
         }
-        
         // Clear editor
         function clearEditor() {
           if (editor.innerText.trim() !== '' &&
@@ -942,7 +933,6 @@
           updateCharCounter();
           showStatus('Editor cleared.');
         }
-        
         // Preview links
         function previewLinks() {
           const content = editor.innerHTML;
@@ -967,7 +957,6 @@
           previewContent.innerHTML = previewHTML;
           previewModal.style.display = 'flex';
         }
-        
         // Download output
         function downloadOutput() {
           const format = currentFormat;
@@ -1024,7 +1013,6 @@
           URL.revokeObjectURL(url);
           showStatus(`Downloaded ${filename}`);
         }
-        
         // Toggle dark mode
         function toggleDarkMode() {
           document.body.classList.toggle('dark-mode');
@@ -1032,12 +1020,10 @@
           localStorage.setItem('darkMode', isDark);
           themeToggle.innerHTML = isDark ? '<i class="fas fa-sun"></i>' : '<i class="fas fa-moon"></i>';
         }
-        
         // Event handlers
         // Initialize placeholder on load
         initPlaceholder();
         updateHistoryUI();
-        
         // Handle input in editor with debouncing
         editor.addEventListener('input', () => {
           clearTimeout(debounceTimer);
@@ -1047,7 +1033,6 @@
             updateCharCounter();
           }, 300);
         });
-        
         // Handle paste
         editor.addEventListener('paste', (e) => {
           e.preventDefault(); // Prevent default paste behavior
@@ -1064,55 +1049,45 @@
             document.execCommand('insertHTML', false, htmlWithLineBreaks);
           }
         });
-        
         // Make Hyperlink button
         btnMakeLink.addEventListener('click', () => {
           makeLink();
         });
-        
         // Clear button
         btnClear.addEventListener('click', () => {
           clearEditor();
         });
-        
         // Preview button
         btnPreview.addEventListener('click', () => {
           previewLinks();
         });
-        
         // Download button
         btnDownload.addEventListener('click', () => {
           downloadOutput();
         });
-        
         // Theme toggle
         themeToggle.addEventListener('click', () => {
           toggleDarkMode();
         });
-        
         // History toggle
         historyToggle.addEventListener('click', (e) => {
           e.preventDefault();
           historyPanel.classList.add('open');
         });
-        
         // Close history
         closeHistory.addEventListener('click', () => {
           historyPanel.classList.remove('open');
         });
-        
         // Close preview
         closePreview.addEventListener('click', () => {
           previewModal.style.display = 'none';
         });
-        
         // Close preview when clicking outside
         previewModal.addEventListener('click', (e) => {
           if (e.target === previewModal) {
             previewModal.style.display = 'none';
           }
         });
-        
         // Tab switching
         tabButtons.forEach(button => {
           button.addEventListener('click', () => {
@@ -1133,14 +1108,12 @@
             currentFormat = tabId;
           });
         });
-        
         // Copy output on click
         document.querySelectorAll('#output pre').forEach(pre => {
           pre.addEventListener('click', () => {
             copyCode(pre);
           });
         });
-        
         // Keyboard shortcuts
         document.addEventListener('keydown', (e) => {
           // Ctrl/Cmd + K to make link
@@ -1164,10 +1137,8 @@
             previewModal.style.display = 'none';
           }
         });
-        
         // Add event listeners for history controls
         document.getElementById('clear-all-history').addEventListener('click', clearAllHistory);
-        
         // Initialize the delete buttons for existing history items
         document.querySelectorAll('.delete-history').forEach(button => {
           button.addEventListener('click', (e) => {
